@@ -5,83 +5,515 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mi día ☀️</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap');
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; min-height: 100vh; }
-  .wrap { max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    background: #1a3a2a;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ── LANDSCAPE BACKGROUND ── */
+  .landscape {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* Sky gradient */
+  .sky {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      #1a2d4e 0%,
+      #2d4a7a 15%,
+      #4a7fb5 35%,
+      #7eb8d4 50%,
+      #c8e8f5 60%,
+      #f5c97a 72%,
+      #f09030 80%,
+      #c85a20 88%,
+      #7a2010 95%,
+      #3a1008 100%
+    );
+  }
+
+  /* Sun */
+  .sun {
+    position: absolute;
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff8c0 0%, #ffe070 30%, #ffb020 60%, #ff7010 100%);
+    box-shadow: 0 0 60px 30px rgba(255,180,30,0.5), 0 0 120px 60px rgba(255,140,10,0.25);
+    top: 62%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: sunPulse 4s ease-in-out infinite;
+  }
+  @keyframes sunPulse {
+    0%, 100% { box-shadow: 0 0 60px 30px rgba(255,180,30,0.5), 0 0 120px 60px rgba(255,140,10,0.25); }
+    50% { box-shadow: 0 0 80px 40px rgba(255,200,50,0.6), 0 0 160px 80px rgba(255,160,20,0.3); }
+  }
+
+  /* Sun rays */
+  .sun-rays {
+    position: absolute;
+    width: 90px; height: 90px;
+    top: 62%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: raysRotate 20s linear infinite;
+  }
+  .sun-rays::before, .sun-rays::after {
+    content: '';
+    position: absolute;
+    inset: -40px;
+    background: repeating-conic-gradient(
+      rgba(255,200,50,0.08) 0deg 10deg,
+      transparent 10deg 30deg
+    );
+    border-radius: 50%;
+  }
+  @keyframes raysRotate { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+  /* Horizon glow */
+  .horizon-glow {
+    position: absolute;
+    bottom: 32%;
+    left: 0; right: 0;
+    height: 80px;
+    background: radial-gradient(ellipse 80% 100% at 50% 100%, rgba(255,150,30,0.35) 0%, transparent 100%);
+  }
+
+  /* Mountains far */
+  .mountains-far {
+    position: absolute;
+    bottom: 30%;
+    left: 0; right: 0;
+    height: 120px;
+  }
+  .mountains-far svg { width: 100%; height: 100%; }
+
+  /* Mountains near */
+  .mountains-near {
+    position: absolute;
+    bottom: 24%;
+    left: 0; right: 0;
+    height: 140px;
+  }
+  .mountains-near svg { width: 100%; height: 100%; }
+
+  /* Prairie / meadow */
+  .meadow {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 26%;
+    background: linear-gradient(
+      180deg,
+      #4a8c3f 0%,
+      #3a7030 30%,
+      #2d5a24 65%,
+      #1e3d18 100%
+    );
+    border-radius: 60% 60% 0 0 / 20px 20px 0 0;
+  }
+
+  /* Grass detail */
+  .grass-detail {
+    position: absolute;
+    bottom: 24%;
+    left: 0; right: 0;
+    height: 30px;
+    background: radial-gradient(ellipse 60% 100% at 20% 0%, #5aaa48 0%, transparent 60%),
+                radial-gradient(ellipse 40% 100% at 50% 0%, #4a9a38 0%, transparent 60%),
+                radial-gradient(ellipse 50% 100% at 80% 0%, #52a040 0%, transparent 60%);
+  }
+
+  /* Stars */
+  .stars {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    opacity: 0.4;
+  }
+
+  /* Clouds */
+  .cloud {
+    position: absolute;
+    background: rgba(255,255,255,0.12);
+    border-radius: 999px;
+    filter: blur(8px);
+  }
+  .cloud-1 { width: 180px; height: 40px; top: 18%; left: 8%; animation: cloudDrift 35s linear infinite; }
+  .cloud-2 { width: 120px; height: 28px; top: 25%; right: 12%; animation: cloudDrift 50s linear infinite reverse; }
+  .cloud-3 { width: 220px; height: 50px; top: 12%; left: 40%; animation: cloudDrift 42s linear infinite; opacity: 0.08; }
+  @keyframes cloudDrift {
+    from { transform: translateX(0); }
+    to { transform: translateX(30px); }
+  }
+
+  /* Overlay for readability */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 20, 15, 0.45);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── CONTENT ── */
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 28px 16px 60px;
+  }
 
   /* Header */
-  .header { text-align: center; margin-bottom: 20px; }
-  .fecha { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
-  .title { font-size: 26px; font-weight: 600; color: #1a1a1a; margin-bottom: 10px; }
-  .prog-bg { background: #e0e0e0; border-radius: 99px; height: 6px; overflow: hidden; margin: 0 auto 6px; max-width: 300px; }
-  .prog-fill { height: 6px; background: #7F77DD; border-radius: 99px; transition: width .4s; }
-  .prog-text { font-size: 12px; color: #aaa; }
+  .header { text-align: center; margin-bottom: 24px; }
+  .fecha {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    margin-bottom: 4px;
+    font-weight: 300;
+  }
+  .title {
+    font-family: 'Fraunces', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+  }
+  .clock {
+    font-family: 'Fraunces', serif;
+    font-size: 52px;
+    font-weight: 300;
+    color: #fff;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 30px rgba(0,0,0,0.5);
+  }
+  .clock-seconds {
+    font-size: 28px;
+    opacity: 0.6;
+  }
+  .prog-bg {
+    background: rgba(255,255,255,0.15);
+    border-radius: 99px;
+    height: 5px;
+    overflow: hidden;
+    margin: 0 auto 6px;
+    max-width: 260px;
+    backdrop-filter: blur(4px);
+  }
+  .prog-fill {
+    height: 5px;
+    background: linear-gradient(90deg, #a8e063, #56ab2f);
+    border-radius: 99px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+  }
+  .prog-text { font-size: 12px; color: rgba(255,255,255,0.55); font-weight: 300; }
 
   /* Auth */
-  #authSection { text-align: center; padding: 40px 20px; }
-  #authSection p { color: #666; font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
-  .btn-google { display: inline-flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 12px 22px; font-size: 14px; font-weight: 500; color: #333; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,.08); transition: box-shadow .2s; }
-  .btn-google:hover { box-shadow: 0 2px 8px rgba(0,0,0,.14); }
+  #authSection {
+    text-align: center;
+    padding: 50px 20px;
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+  }
+  #authSection p { color: rgba(255,255,255,0.75); font-size: 14px; margin-bottom: 24px; line-height: 1.7; }
+  .btn-google {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    border-radius: 12px;
+    padding: 13px 24px;
+    font-size: 14px; font-weight: 500; color: #333;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    transition: all .2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-google:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(0,0,0,0.35); }
   .btn-google svg { width: 20px; height: 20px; }
 
   /* Sync bar */
-  .syncbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .sync-info { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #aaa; }
-  .dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
-  .dot.ok { background: #1D9E75; }
-  .dot.busy { background: #EF9F27; animation: blink 1s infinite; }
-  .dot.err { background: #E24B4A; }
+  .syncbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 0 2px;
+  }
+  .sync-info { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,0.5); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+  .dot.ok { background: #56ab2f; }
+  .dot.busy { background: #f0b429; animation: blink 1s infinite; }
+  .dot.err { background: #e74c3c; }
   @keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
-  .btn-signout { font-size: 11px; color: #bbb; background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
-  .btn-signout:hover { color: #888; background: #f0f0ee; }
+  .btn-signout {
+    font-size: 11px; color: rgba(255,255,255,0.4);
+    background: none; border: none; cursor: pointer;
+    padding: 3px 8px; border-radius: 6px;
+    transition: all .15s;
+  }
+  .btn-signout:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.1); }
 
   /* Sections */
-  .section { background: #fff; border: 1px solid #e8e8e5; border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; }
-  .sec-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .section {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 18px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    transition: box-shadow .2s;
+  }
+  .section:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.2); }
+  .sec-head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
   .sec-icon { font-size: 16px; }
-  .sec-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #888; flex: 1; }
-  .badge { font-size: 11px; border-radius: 99px; padding: 2px 9px; font-weight: 500; }
-  .badge-p { background: #f1f0fb; color: #7F77DD; }
-  .badge-a { background: #fff7e6; color: #b36b00; }
+  .sec-label {
+    font-size: 10px; font-weight: 500; letter-spacing: .12em;
+    text-transform: uppercase; color: rgba(255,255,255,0.6); flex: 1;
+  }
+  .badge {
+    font-size: 11px; border-radius: 99px;
+    padding: 2px 10px; font-weight: 500;
+  }
+  .badge-p { background: rgba(168,224,99,0.2); color: #a8e063; border: 1px solid rgba(168,224,99,0.3); }
+  .badge-a { background: rgba(255,180,50,0.2); color: #ffc04a; border: 1px solid rgba(255,180,50,0.3); }
 
   /* Items */
-  .item-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0f0ee; }
+  .item-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
   .item-row:last-of-type { border-bottom: none; }
-  .cb { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid #ccc; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all .15s; font-size: 11px; color: #fff; }
-  .cb.done { background: #7F77DD; border-color: #7F77DD; }
-  .item-text { flex: 1; font-size: 14px; color: #1a1a1a; }
-  .item-text.done { color: #bbb; text-decoration: line-through; }
-  .del-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 20px; line-height: 1; padding: 0 2px; }
-  .del-btn:hover { color: #999; }
+  .cb {
+    width: 18px; height: 18px; border-radius: 5px;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+    transition: all .15s; font-size: 11px; color: #fff;
+  }
+  .cb.done { background: #56ab2f; border-color: #56ab2f; }
+  .item-text { flex: 1; font-size: 14px; color: rgba(255,255,255,0.9); cursor: pointer; }
+  .item-text.done { color: rgba(255,255,255,0.35); text-decoration: line-through; }
+  .item-text:hover:not(.done) { color: #fff; }
+
+  /* Inline edit */
+  .item-edit-input {
+    flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 6px; padding: 4px 8px; font-size: 14px;
+    color: #fff; font-family: 'DM Sans', sans-serif; outline: none;
+  }
+  .item-edit-input:focus { border-color: #a8e063; }
+
+  .item-actions { display: flex; gap: 4px; }
+  .edit-btn, .del-btn {
+    background: none; border: none; cursor: pointer;
+    color: rgba(255,255,255,0.25); font-size: 16px;
+    line-height: 1; padding: 2px 3px;
+    border-radius: 4px; transition: all .15s;
+  }
+  .edit-btn:hover { color: rgba(168,224,99,0.8); background: rgba(168,224,99,0.1); }
+  .del-btn:hover { color: rgba(231,76,60,0.8); background: rgba(231,76,60,0.1); }
+  .save-btn {
+    background: rgba(86,171,47,0.25); border: 1px solid rgba(86,171,47,0.4);
+    border-radius: 5px; color: #a8e063; font-size: 12px;
+    padding: 3px 8px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+  }
 
   /* Add row */
-  .add-row { display: flex; gap: 8px; margin-top: 12px; }
-  .add-row input { flex: 1; border: 1px solid #e8e8e5; border-radius: 8px; padding: 8px 10px; font-size: 13px; outline: none; background: #fafaf8; color: #222; font-family: inherit; }
-  .add-row input:focus { border-color: #7F77DD; }
-  .add-btn { display: flex; align-items: center; gap: 4px; background: #7F77DD; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; font-weight: 500; white-space: nowrap; }
+  .add-row { display: flex; gap: 8px; margin-top: 14px; }
+  .add-row input {
+    flex: 1; border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 9px; padding: 9px 12px; font-size: 13px;
+    outline: none; background: rgba(255,255,255,0.07);
+    color: #fff; font-family: 'DM Sans', sans-serif;
+  }
+  .add-row input::placeholder { color: rgba(255,255,255,0.3); }
+  .add-row input:focus { border-color: rgba(168,224,99,0.5); background: rgba(255,255,255,0.1); }
+  .add-btn {
+    display: flex; align-items: center; gap: 4px;
+    background: rgba(86,171,47,0.3); color: #a8e063;
+    border: 1px solid rgba(86,171,47,0.4);
+    border-radius: 9px; padding: 9px 14px;
+    font-size: 13px; cursor: pointer; font-weight: 500;
+    white-space: nowrap; font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+  }
+  .add-btn:hover { background: rgba(86,171,47,0.45); }
 
-  /* Chips */
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-  .chip { display: inline-flex; align-items: center; gap: 5px; background: #f5f4ff; border: 1px solid #dddaf7; border-radius: 99px; padding: 4px 10px; font-size: 13px; color: #534AB7; }
-  .chip-del { background: none; border: none; cursor: pointer; color: #9994cc; font-size: 16px; line-height: 1; padding: 0; }
+  /* Chips (compras) */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,180,50,0.15);
+    border: 1px solid rgba(255,180,50,0.3);
+    border-radius: 99px; padding: 5px 12px;
+    font-size: 13px; color: #ffc04a;
+    cursor: default;
+  }
+  .chip-text { cursor: pointer; }
+  .chip-text:hover { text-decoration: underline; }
+  .chip-del {
+    background: none; border: none; cursor: pointer;
+    color: rgba(255,180,50,0.5); font-size: 16px; line-height: 1; padding: 0;
+    transition: color .15s;
+  }
+  .chip-del:hover { color: #ffc04a; }
 
   /* Notas */
-  textarea { width: 100%; border: 1px solid #e8e8e5; border-radius: 8px; padding: 8px 10px; font-size: 13px; outline: none; background: #fafaf8; color: #222; resize: vertical; line-height: 1.6; font-family: inherit; }
-  textarea:focus { border-color: #7F77DD; }
+  textarea {
+    width: 100%; border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 9px; padding: 10px 12px;
+    font-size: 13px; outline: none;
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.9);
+    resize: vertical; line-height: 1.7;
+    font-family: 'DM Sans', sans-serif;
+  }
+  textarea::placeholder { color: rgba(255,255,255,0.3); }
+  textarea:focus { border-color: rgba(168,224,99,0.5); }
 
-  .footer { text-align: center; font-size: 11px; color: #ccc; margin-top: 8px; }
+  /* ── HÁBITOS ── */
+  .habit-item {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .habit-item:last-of-type { border-bottom: none; }
+  .habit-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .habit-check {
+    width: 22px; height: 22px; border-radius: 6px;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; transition: all .2s;
+    font-size: 13px; color: #fff;
+  }
+  .habit-check.done-today { background: #a8e063; border-color: #a8e063; }
+  .habit-name { flex: 1; font-size: 14px; color: rgba(255,255,255,0.9); cursor: pointer; }
+  .habit-name:hover { color: #fff; }
+  .habit-name.edit-input-wrap { flex: 1; }
+  .streak-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    white-space: nowrap;
+  }
+  .streak-label.on-fire { color: #ffa040; }
+  .habit-bar-bg {
+    background: rgba(255,255,255,0.1);
+    border-radius: 99px; height: 4px; overflow: hidden;
+    margin-bottom: 3px;
+  }
+  .habit-bar-fill {
+    height: 4px; border-radius: 99px;
+    background: linear-gradient(90deg, #a8e063, #56ab2f);
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+  }
+  .habit-bar-fill.danger { background: linear-gradient(90deg, #f6d365, #fda085); }
+  .habit-days-text { font-size: 10px; color: rgba(255,255,255,0.35); }
+
+  /* Footer */
+  .footer { text-align: center; font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 10px; font-weight: 300; }
 
   /* Toast */
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; font-size: 13px; padding: 9px 18px; border-radius: 99px; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  .toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(20,30,20,0.92);
+    backdrop-filter: blur(12px);
+    color: #fff; font-size: 13px;
+    padding: 10px 20px; border-radius: 99px;
+    border: 1px solid rgba(255,255,255,0.15);
+    opacity: 0; transition: opacity .3s;
+    pointer-events: none; white-space: nowrap; z-index: 999;
+  }
   .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
 
+<!-- ── LANDSCAPE ── -->
+<div class="landscape">
+  <div class="sky"></div>
+
+  <!-- Stars -->
+  <svg class="stars" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+    <g fill="white">
+      <circle cx="50" cy="30" r="1" opacity=".8"/>
+      <circle cx="140" cy="80" r=".8" opacity=".6"/>
+      <circle cx="230" cy="20" r="1.2" opacity=".9"/>
+      <circle cx="310" cy="60" r=".7" opacity=".5"/>
+      <circle cx="420" cy="15" r="1" opacity=".7"/>
+      <circle cx="500" cy="50" r=".9" opacity=".8"/>
+      <circle cx="600" cy="25" r="1.1" opacity=".6"/>
+      <circle cx="700" cy="70" r=".8" opacity=".7"/>
+      <circle cx="750" cy="35" r="1" opacity=".9"/>
+      <circle cx="80" cy="120" r=".7" opacity=".5"/>
+      <circle cx="180" cy="100" r=".9" opacity=".6"/>
+      <circle cx="350" cy="110" r=".8" opacity=".7"/>
+      <circle cx="450" cy="90" r="1" opacity=".5"/>
+      <circle cx="650" cy="110" r=".7" opacity=".6"/>
+    </g>
+  </svg>
+
+  <!-- Clouds -->
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+
+  <!-- Sun -->
+  <div class="sun-rays"></div>
+  <div class="sun"></div>
+
+  <!-- Horizon glow -->
+  <div class="horizon-glow"></div>
+
+  <!-- Far mountains -->
+  <div class="mountains-far">
+    <svg viewBox="0 0 1440 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,120 L0,80 L80,40 L160,70 L240,30 L320,65 L400,20 L480,55 L560,35 L640,60 L720,25 L800,58 L880,18 L960,52 L1040,38 L1120,62 L1200,28 L1280,55 L1360,40 L1440,65 L1440,120 Z"
+        fill="#2a4060" opacity="0.7"/>
+    </svg>
+  </div>
+
+  <!-- Near mountains -->
+  <div class="mountains-near">
+    <svg viewBox="0 0 1440 140" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,140 L0,100 L100,50 L200,90 L300,35 L400,75 L500,45 L600,80 L700,30 L800,70 L900,40 L1000,75 L1100,50 L1200,85 L1300,45 L1440,90 L1440,140 Z"
+        fill="#1e3848" opacity="0.85"/>
+    </svg>
+  </div>
+
+  <!-- Meadow -->
+  <div class="meadow"></div>
+  <div class="grass-detail"></div>
+</div>
+
+<!-- Overlay -->
+<div class="overlay"></div>
+
 <div class="wrap">
   <div class="header">
     <p class="fecha" id="fechaStr"></p>
     <h1 class="title">Mi día ☀️</h1>
+    <div class="clock" id="clock">00<span class="clock-seconds">:00</span></div>
     <div class="prog-bg"><div class="prog-fill" id="progBar" style="width:0%"></div></div>
     <p class="prog-text" id="progText">0 de 0 completadas · 0%</p>
   </div>
@@ -100,7 +532,7 @@
     </button>
   </div>
 
-  <!-- App (hidden until auth) -->
+  <!-- App -->
   <div id="appSection" style="display:none">
     <div class="syncbar">
       <div class="sync-info">
@@ -110,6 +542,7 @@
       <button class="btn-signout" onclick="signOut()">Cerrar sesión</button>
     </div>
 
+    <!-- Tareas -->
     <div class="section">
       <div class="sec-head">
         <span class="sec-icon">✅</span>
@@ -123,6 +556,7 @@
       </div>
     </div>
 
+    <!-- Estudio -->
     <div class="section">
       <div class="sec-head">
         <span class="sec-icon">📚</span>
@@ -136,6 +570,7 @@
       </div>
     </div>
 
+    <!-- Compras -->
     <div class="section">
       <div class="sec-head">
         <span class="sec-icon">🛒</span>
@@ -149,6 +584,21 @@
       </div>
     </div>
 
+    <!-- Hábitos -->
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-icon">🌱</span>
+        <span class="sec-label">Hábitos · racha 30 días</span>
+        <span class="badge badge-p" id="bHabitos">0/0 hoy</span>
+      </div>
+      <div id="lHabitos"></div>
+      <div class="add-row">
+        <input id="inHabito" placeholder="Nuevo hábito (ej. Meditar, Ejercicio…)" onkeydown="onKeyHabito(event)">
+        <button class="add-btn" onclick="addHabito()">+ Añadir</button>
+      </div>
+    </div>
+
+    <!-- Notas -->
     <div class="section">
       <div class="sec-head">
         <span class="sec-icon">📝</span>
@@ -163,7 +613,6 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script>
 // ── CONFIG ──────────────────────────────────────────────
@@ -177,8 +626,27 @@ const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto"
 const d = new Date();
 document.getElementById("fechaStr").textContent = `${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]}`;
 
+// ── RELOJ HORA ESPAÑOLA ────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const es = new Intl.DateTimeFormat('es-ES', {
+    timeZone: 'Europe/Madrid',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false
+  }).formatToParts(now);
+  const parts = {};
+  es.forEach(p => { if (p.type !== 'literal') parts[p.type] = p.value; });
+  const hm = `${parts.hour}:${parts.minute}`;
+  const sec = `:${parts.second}`;
+  document.getElementById("clock").innerHTML =
+    `${hm}<span class="clock-seconds">${sec}</span>`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
 // ── STATE ───────────────────────────────────────────────
-let state = { date: TODAY, tareas: [], estudio: [], compras: [], notas: "" };
+// habitos: [{ id, name, streak, lastChecked, checkedToday }]
+let state = { date: TODAY, tareas: [], estudio: [], compras: [], notas: "", habitos: [] };
 let accessToken = null;
 let fileId = null;
 let saveTimer = null;
@@ -186,15 +654,12 @@ let tokenClient = null;
 
 // ── AUTH ────────────────────────────────────────────────
 window.onload = () => {
-  // Try restore token from sessionStorage
   const saved = sessionStorage.getItem("gtoken");
   if (saved) {
     accessToken = saved;
     showApp();
     loadFromDrive();
   }
-
-  // Init token client
   google.accounts.id.initialize({ client_id: CLIENT_ID });
 };
 
@@ -216,8 +681,7 @@ function signIn() {
 
 function signOut() {
   google.accounts.oauth2.revoke(accessToken, () => {});
-  accessToken = null;
-  fileId = null;
+  accessToken = null; fileId = null;
   sessionStorage.removeItem("gtoken");
   document.getElementById("authSection").style.display = "";
   document.getElementById("appSection").style.display = "none";
@@ -248,9 +712,7 @@ async function findFile() {
 }
 
 async function readFile(id) {
-  const res = await driveReq(
-    `https://www.googleapis.com/drive/v3/files/${id}?alt=media`
-  );
+  const res = await driveReq(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`);
   if (!res) return null;
   return await res.json();
 }
@@ -286,16 +748,18 @@ async function loadFromDrive() {
       fileId = id;
       const saved = await readFile(id);
       if (saved) {
+        const loadedHabitos = (saved.habitos || []).map(h => migrateHabito(h));
         if (saved.date !== TODAY) {
           state = {
             date: TODAY,
             tareas: (saved.tareas || []).filter(i => !i.done),
             estudio: (saved.estudio || []).filter(i => !i.done),
             compras: saved.compras || [],
-            notas: ""
+            notas: "",
+            habitos: loadedHabitos.map(h => checkHabitoReset(h))
           };
         } else {
-          state = { ...state, ...saved };
+          state = { ...state, ...saved, habitos: loadedHabitos };
         }
       }
       setSync("ok", "Sincronizado");
@@ -308,6 +772,30 @@ async function loadFromDrive() {
   render();
 }
 
+function migrateHabito(h) {
+  return {
+    id: h.id || Date.now() + Math.random(),
+    name: h.name || '',
+    streak: h.streak || 0,
+    lastChecked: h.lastChecked || null,
+    checkedToday: h.checkedToday || false
+  };
+}
+
+function checkHabitoReset(h) {
+  if (!h.lastChecked) return { ...h, checkedToday: false };
+  const yesterday = new Date(TODAY);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().slice(0, 10);
+  if (h.lastChecked !== TODAY && h.lastChecked !== yesterdayStr) {
+    return { ...h, streak: 0, checkedToday: false };
+  }
+  if (h.lastChecked === yesterdayStr) {
+    return { ...h, checkedToday: false };
+  }
+  return h;
+}
+
 function schedSave() {
   state.notas = document.getElementById("notas").value;
   clearTimeout(saveTimer);
@@ -317,11 +805,8 @@ function schedSave() {
 
 async function saveToDrive() {
   try {
-    if (fileId) {
-      await updateFile(fileId, state);
-    } else {
-      fileId = await createFile(state);
-    }
+    if (fileId) { await updateFile(fileId, state); }
+    else { fileId = await createFile(state); }
     setSync("ok", "Guardado en Drive");
   } catch(e) {
     setSync("err", "Error al guardar");
@@ -352,29 +837,200 @@ function render() {
   renderList("tareas");
   renderList("estudio");
   renderCompras();
+  renderHabitos();
   document.getElementById("notas").value = state.notas || "";
   updateProg();
 }
 
 function renderList(sec) {
   const items = state[sec] || [];
-  document.getElementById("l" + cap(sec)).innerHTML = items.map((it, i) => `
-    <div class="item-row">
+  const container = document.getElementById("l" + cap(sec));
+  container.innerHTML = items.map((it, i) => `
+    <div class="item-row" id="row-${sec}-${i}">
       <div class="cb ${it.done ? "done" : ""}" onclick="toggle('${sec}',${i})">
         ${it.done ? "✓" : ""}
       </div>
-      <span class="item-text ${it.done ? "done" : ""}">${esc(it.text)}</span>
-      <button class="del-btn" onclick="delItem('${sec}',${i})">×</button>
+      <span class="item-text ${it.done ? "done" : ""}" ondblclick="startEdit('${sec}',${i})"
+        title="Doble clic para editar">${esc(it.text)}</span>
+      <div class="item-actions">
+        <button class="edit-btn" onclick="startEdit('${sec}',${i})" title="Editar">✏</button>
+        <button class="del-btn" onclick="delItem('${sec}',${i})">×</button>
+      </div>
     </div>`).join("");
   const done = items.filter(i => i.done).length;
   document.getElementById("b" + cap(sec)).textContent = `${done}/${items.length}`;
 }
 
+function startEdit(sec, idx) {
+  const row = document.getElementById(`row-${sec}-${idx}`);
+  if (!row) return;
+  const span = row.querySelector('.item-text');
+  const current = state[sec][idx].text;
+  row.innerHTML = `
+    <div class="cb ${state[sec][idx].done ? "done" : ""}" onclick="toggle('${sec}',${idx})">
+      ${state[sec][idx].done ? "✓" : ""}
+    </div>
+    <input class="item-edit-input" id="edit-${sec}-${idx}" value="${esc(current)}"
+      onkeydown="onEditKey(event,'${sec}',${idx})">
+    <button class="save-btn" onclick="saveEdit('${sec}',${idx})">Guardar</button>
+    <button class="del-btn" onclick="delItem('${sec}',${idx})">×</button>
+  `;
+  const inp = document.getElementById(`edit-${sec}-${idx}`);
+  inp.focus();
+  inp.select();
+}
+
+function onEditKey(e, sec, idx) {
+  if (e.key === 'Enter') saveEdit(sec, idx);
+  if (e.key === 'Escape') renderList(sec);
+}
+
+function saveEdit(sec, idx) {
+  const inp = document.getElementById(`edit-${sec}-${idx}`);
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (!val) return;
+  state[sec][idx].text = val;
+  renderList(sec);
+  updateProg();
+  schedSave();
+  showToast("Editado ✓");
+}
+
 function renderCompras() {
   const c = state.compras || [];
   document.getElementById("chipsCompras").innerHTML = c.map((item, i) => `
-    <div class="chip">${esc(item)}<button class="chip-del" onclick="delCompra(${i})">×</button></div>`).join("");
+    <div class="chip">
+      <span class="chip-text" ondblclick="editCompra(${i})" title="Doble clic para editar">${esc(item)}</span>
+      <button class="chip-del" onclick="delCompra(${i})">×</button>
+    </div>`).join("");
   document.getElementById("bCompras").textContent = `${c.length} pendiente${c.length !== 1 ? "s" : ""}`;
+}
+
+function editCompra(idx) {
+  const val = prompt("Editar producto:", state.compras[idx]);
+  if (val === null) return;
+  const trimmed = val.trim();
+  if (!trimmed) return;
+  state.compras[idx] = trimmed;
+  renderCompras();
+  schedSave();
+}
+
+// ── HÁBITOS ─────────────────────────────────────────────
+function renderHabitos() {
+  const habitos = state.habitos || [];
+  const container = document.getElementById("lHabitos");
+
+  container.innerHTML = habitos.map((h, i) => {
+    const pct = Math.min(100, Math.round((h.streak / 30) * 100));
+    const isFireStr = h.streak >= 7 ? "on-fire" : "";
+    const barClass = h.streak < 7 ? "danger" : "";
+    const emoji = h.streak >= 30 ? "🏆" : h.streak >= 14 ? "🔥" : h.streak >= 7 ? "⚡" : "";
+    const streakLabel = h.checkedToday
+      ? `${emoji} ${h.streak} día${h.streak !== 1 ? "s" : ""} seguido${h.streak !== 1 ? "s" : ""}`
+      : `${h.streak} día${h.streak !== 1 ? "s" : ""} · ¡hazlo hoy!`;
+
+    return `
+    <div class="habit-item" id="habit-row-${i}">
+      <div class="habit-header">
+        <div class="habit-check ${h.checkedToday ? "done-today" : ""}" onclick="toggleHabito(${i})">
+          ${h.checkedToday ? "✓" : ""}
+        </div>
+        <span class="habit-name" ondblclick="startEditHabito(${i})" title="Doble clic para editar">${esc(h.name)}</span>
+        <span class="streak-label ${isFireStr}">${streakLabel}</span>
+        <button class="edit-btn" onclick="startEditHabito(${i})" title="Editar">✏</button>
+        <button class="del-btn" onclick="delHabito(${i})">×</button>
+      </div>
+      <div class="habit-bar-bg">
+        <div class="habit-bar-fill ${barClass}" style="width:${pct}%"></div>
+      </div>
+      <div class="habit-days-text">${h.streak}/30 días${h.streak >= 30 ? " · ¡Meta conseguida! 🏆" : ""}</div>
+    </div>`;
+  }).join("");
+
+  const done = habitos.filter(h => h.checkedToday).length;
+  document.getElementById("bHabitos").textContent = `${done}/${habitos.length} hoy`;
+}
+
+function toggleHabito(idx) {
+  const h = state.habitos[idx];
+  if (h.checkedToday) {
+    // Desmarcar: restar racha
+    h.checkedToday = false;
+    h.streak = Math.max(0, h.streak - 1);
+    h.lastChecked = h.streak > 0 ? TODAY : null;
+  } else {
+    // Marcar: sumar racha
+    h.checkedToday = true;
+    h.streak = h.streak + 1;
+    h.lastChecked = TODAY;
+    if (h.streak === 30) showToast("🏆 ¡30 días seguidos! ¡Meta conseguida!");
+    else if (h.streak === 7) showToast("⚡ ¡7 días seguidos! ¡Sigue así!");
+    else if (h.streak === 14) showToast("🔥 ¡14 días seguidos! ¡Increíble!");
+  }
+  renderHabitos();
+  schedSave();
+}
+
+function startEditHabito(idx) {
+  const row = document.getElementById(`habit-row-${idx}`);
+  if (!row) return;
+  const h = state.habitos[idx];
+  const header = row.querySelector('.habit-header');
+  header.innerHTML = `
+    <div class="habit-check ${h.checkedToday ? "done-today" : ""}" onclick="toggleHabito(${idx})">
+      ${h.checkedToday ? "✓" : ""}
+    </div>
+    <input class="item-edit-input" id="edit-habit-${idx}" value="${esc(h.name)}"
+      onkeydown="onEditHabitoKey(event,${idx})" style="flex:1">
+    <button class="save-btn" onclick="saveEditHabito(${idx})">Guardar</button>
+    <button class="del-btn" onclick="delHabito(${idx})">×</button>
+  `;
+  const inp = document.getElementById(`edit-habit-${idx}`);
+  inp.focus(); inp.select();
+}
+
+function onEditHabitoKey(e, idx) {
+  if (e.key === 'Enter') saveEditHabito(idx);
+  if (e.key === 'Escape') renderHabitos();
+}
+
+function saveEditHabito(idx) {
+  const inp = document.getElementById(`edit-habit-${idx}`);
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (!val) return;
+  state.habitos[idx].name = val;
+  renderHabitos();
+  schedSave();
+  showToast("Hábito editado ✓");
+}
+
+function addHabito() {
+  const el = document.getElementById("inHabito");
+  const val = el.value.trim();
+  if (!val) return;
+  state.habitos.push({
+    id: Date.now(),
+    name: val,
+    streak: 0,
+    lastChecked: null,
+    checkedToday: false
+  });
+  el.value = "";
+  renderHabitos();
+  schedSave();
+}
+
+function delHabito(idx) {
+  state.habitos.splice(idx, 1);
+  renderHabitos();
+  schedSave();
+}
+
+function onKeyHabito(e) {
+  if (e.key === 'Enter') addHabito();
 }
 
 function updateProg() {
@@ -385,7 +1041,7 @@ function updateProg() {
   document.getElementById("progText").textContent = `${done} de ${all.length} completadas · ${pct}%`;
 }
 
-// ── ACTIONS ──────────────────────────────────────────────
+// ── ACCIONES LISTAS ──────────────────────────────────────
 function toggle(sec, idx) {
   state[sec][idx].done = !state[sec][idx].done;
   renderList(sec); updateProg(); schedSave();
