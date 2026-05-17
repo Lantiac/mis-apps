@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi día ☀️</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; min-height: 100vh; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 20px; }
+  .fecha { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+  .title { font-size: 26px; font-weight: 600; color: #1a1a1a; margin-bottom: 10px; }
+  .prog-bg { background: #e0e0e0; border-radius: 99px; height: 6px; overflow: hidden; margin: 0 auto 6px; max-width: 300px; }
+  .prog-fill { height: 6px; background: #7F77DD; border-radius: 99px; transition: width .4s; }
+  .prog-text { font-size: 12px; color: #aaa; }
+
+  /* Auth */
+  #authSection { text-align: center; padding: 40px 20px; }
+  #authSection p { color: #666; font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+  .btn-google { display: inline-flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 12px 22px; font-size: 14px; font-weight: 500; color: #333; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,.08); transition: box-shadow .2s; }
+  .btn-google:hover { box-shadow: 0 2px 8px rgba(0,0,0,.14); }
+  .btn-google svg { width: 20px; height: 20px; }
+
+  /* Sync bar */
+  .syncbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .sync-info { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #aaa; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+  .dot.ok { background: #1D9E75; }
+  .dot.busy { background: #EF9F27; animation: blink 1s infinite; }
+  .dot.err { background: #E24B4A; }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
+  .btn-signout { font-size: 11px; color: #bbb; background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+  .btn-signout:hover { color: #888; background: #f0f0ee; }
+
+  /* Sections */
+  .section { background: #fff; border: 1px solid #e8e8e5; border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; }
+  .sec-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .sec-icon { font-size: 16px; }
+  .sec-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #888; flex: 1; }
+  .badge { font-size: 11px; border-radius: 99px; padding: 2px 9px; font-weight: 500; }
+  .badge-p { background: #f1f0fb; color: #7F77DD; }
+  .badge-a { background: #fff7e6; color: #b36b00; }
+
+  /* Items */
+  .item-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0f0ee; }
+  .item-row:last-of-type { border-bottom: none; }
+  .cb { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid #ccc; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all .15s; font-size: 11px; color: #fff; }
+  .cb.done { background: #7F77DD; border-color: #7F77DD; }
+  .item-text { flex: 1; font-size: 14px; color: #1a1a1a; }
+  .item-text.done { color: #bbb; text-decoration: line-through; }
+  .del-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 20px; line-height: 1; padding: 0 2px; }
+  .del-btn:hover { color: #999; }
+
+  /* Add row */
+  .add-row { display: flex; gap: 8px; margin-top: 12px; }
+  .add-row input { flex: 1; border: 1px solid #e8e8e5; border-radius: 8px; padding: 8px 10px; font-size: 13px; outline: none; background: #fafaf8; color: #222; font-family: inherit; }
+  .add-row input:focus { border-color: #7F77DD; }
+  .add-btn { display: flex; align-items: center; gap: 4px; background: #7F77DD; color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; font-weight: 500; white-space: nowrap; }
+
+  /* Chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .chip { display: inline-flex; align-items: center; gap: 5px; background: #f5f4ff; border: 1px solid #dddaf7; border-radius: 99px; padding: 4px 10px; font-size: 13px; color: #534AB7; }
+  .chip-del { background: none; border: none; cursor: pointer; color: #9994cc; font-size: 16px; line-height: 1; padding: 0; }
+
+  /* Notas */
+  textarea { width: 100%; border: 1px solid #e8e8e5; border-radius: 8px; padding: 8px 10px; font-size: 13px; outline: none; background: #fafaf8; color: #222; resize: vertical; line-height: 1.6; font-family: inherit; }
+  textarea:focus { border-color: #7F77DD; }
+
+  .footer { text-align: center; font-size: 11px; color: #ccc; margin-top: 8px; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; font-size: 13px; padding: 9px 18px; border-radius: 99px; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header">
+    <p class="fecha" id="fechaStr"></p>
+    <h1 class="title">Mi día ☀️</h1>
+    <div class="prog-bg"><div class="prog-fill" id="progBar" style="width:0%"></div></div>
+    <p class="prog-text" id="progText">0 de 0 completadas · 0%</p>
+  </div>
+
+  <!-- Auth screen -->
+  <div id="authSection">
+    <p>Conecta tu Google Drive para guardar y sincronizar tus datos entre todos tus dispositivos.</p>
+    <button class="btn-google" onclick="signIn()">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Conectar con Google
+    </button>
+  </div>
+
+  <!-- App (hidden until auth) -->
+  <div id="appSection" style="display:none">
+    <div class="syncbar">
+      <div class="sync-info">
+        <span class="dot" id="dot"></span>
+        <span id="syncMsg">Sincronizando…</span>
+      </div>
+      <button class="btn-signout" onclick="signOut()">Cerrar sesión</button>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-icon">✅</span>
+        <span class="sec-label">Tareas del día</span>
+        <span class="badge badge-p" id="bTareas">0/0</span>
+      </div>
+      <div id="lTareas"></div>
+      <div class="add-row">
+        <input id="inTareas" placeholder="Añadir tarea…" onkeydown="onKey(event,'tareas')">
+        <button class="add-btn" onclick="addItem('tareas')">+ Añadir</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-icon">📚</span>
+        <span class="sec-label">Estudio</span>
+        <span class="badge badge-p" id="bEstudio">0/0</span>
+      </div>
+      <div id="lEstudio"></div>
+      <div class="add-row">
+        <input id="inEstudio" placeholder="Añadir sesión de estudio…" onkeydown="onKey(event,'estudio')">
+        <button class="add-btn" onclick="addItem('estudio')">+ Añadir</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-icon">🛒</span>
+        <span class="sec-label">Lista de compras</span>
+        <span class="badge badge-a" id="bCompras">0 pendientes</span>
+      </div>
+      <div class="chips" id="chipsCompras"></div>
+      <div class="add-row">
+        <input id="inCompras" placeholder="Añadir producto…" onkeydown="onKey(event,'compras')">
+        <button class="add-btn" onclick="addCompra()">+ Añadir</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-icon">📝</span>
+        <span class="sec-label">Notas del día</span>
+      </div>
+      <textarea id="notas" rows="3" placeholder="Escribe algo para recordar hoy…" oninput="schedSave()"></textarea>
+    </div>
+
+    <p class="footer">Tareas completadas se eliminan al día siguiente · guardado en Google Drive</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+const CLIENT_ID = "715474482755-gad4dmkcrcspu6j5a614v9fat8ei83el.apps.googleusercontent.com";
+const SCOPES = "https://www.googleapis.com/auth/drive.appdata";
+const FILE_NAME = "mi-dia-planificador.json";
+const TODAY = new Date().toISOString().slice(0,10);
+const DIAS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+
+const d = new Date();
+document.getElementById("fechaStr").textContent = `${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]}`;
+
+// ── STATE ───────────────────────────────────────────────
+let state = { date: TODAY, tareas: [], estudio: [], compras: [], notas: "" };
+let accessToken = null;
+let fileId = null;
+let saveTimer = null;
+let tokenClient = null;
+
+// ── AUTH ────────────────────────────────────────────────
+window.onload = () => {
+  // Try restore token from sessionStorage
+  const saved = sessionStorage.getItem("gtoken");
+  if (saved) {
+    accessToken = saved;
+    showApp();
+    loadFromDrive();
+  }
+
+  // Init token client
+  google.accounts.id.initialize({ client_id: CLIENT_ID });
+};
+
+function signIn() {
+  if (!window.google) { showToast("Cargando Google…"); return; }
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (resp) => {
+      if (resp.error) { setSync("err", "Error al conectar"); return; }
+      accessToken = resp.access_token;
+      sessionStorage.setItem("gtoken", accessToken);
+      showApp();
+      loadFromDrive();
+    }
+  });
+  tokenClient.requestAccessToken({ prompt: "consent" });
+}
+
+function signOut() {
+  google.accounts.oauth2.revoke(accessToken, () => {});
+  accessToken = null;
+  fileId = null;
+  sessionStorage.removeItem("gtoken");
+  document.getElementById("authSection").style.display = "";
+  document.getElementById("appSection").style.display = "none";
+}
+
+function showApp() {
+  document.getElementById("authSection").style.display = "none";
+  document.getElementById("appSection").style.display = "";
+}
+
+// ── DRIVE API ───────────────────────────────────────────
+async function driveReq(url, opts = {}) {
+  const res = await fetch(url, {
+    ...opts,
+    headers: { Authorization: `Bearer ${accessToken}`, ...(opts.headers || {}) }
+  });
+  if (res.status === 401) { signOut(); return null; }
+  return res;
+}
+
+async function findFile() {
+  const res = await driveReq(
+    `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${FILE_NAME}'&fields=files(id)`
+  );
+  if (!res) return null;
+  const data = await res.json();
+  return data.files && data.files.length > 0 ? data.files[0].id : null;
+}
+
+async function readFile(id) {
+  const res = await driveReq(
+    `https://www.googleapis.com/drive/v3/files/${id}?alt=media`
+  );
+  if (!res) return null;
+  return await res.json();
+}
+
+async function createFile(content) {
+  const meta = JSON.stringify({ name: FILE_NAME, parents: ["appDataFolder"] });
+  const body = JSON.stringify(content);
+  const form = new FormData();
+  form.append("metadata", new Blob([meta], { type: "application/json" }));
+  form.append("media", new Blob([body], { type: "application/json" }));
+  const res = await driveReq(
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",
+    { method: "POST", body: form }
+  );
+  if (!res) return null;
+  const data = await res.json();
+  return data.id;
+}
+
+async function updateFile(id, content) {
+  await driveReq(
+    `https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,
+    { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(content) }
+  );
+}
+
+// ── LOAD & SAVE ─────────────────────────────────────────
+async function loadFromDrive() {
+  setSync("busy", "Cargando desde Drive…");
+  try {
+    const id = await findFile();
+    if (id) {
+      fileId = id;
+      const saved = await readFile(id);
+      if (saved) {
+        if (saved.date !== TODAY) {
+          state = {
+            date: TODAY,
+            tareas: (saved.tareas || []).filter(i => !i.done),
+            estudio: (saved.estudio || []).filter(i => !i.done),
+            compras: saved.compras || [],
+            notas: ""
+          };
+        } else {
+          state = { ...state, ...saved };
+        }
+      }
+      setSync("ok", "Sincronizado");
+    } else {
+      setSync("ok", "Listo · Drive guardará al añadir algo");
+    }
+  } catch(e) {
+    setSync("err", "Error al cargar");
+  }
+  render();
+}
+
+function schedSave() {
+  state.notas = document.getElementById("notas").value;
+  clearTimeout(saveTimer);
+  setSync("busy", "Guardando…");
+  saveTimer = setTimeout(saveToDrive, 1200);
+}
+
+async function saveToDrive() {
+  try {
+    if (fileId) {
+      await updateFile(fileId, state);
+    } else {
+      fileId = await createFile(state);
+    }
+    setSync("ok", "Guardado en Drive");
+  } catch(e) {
+    setSync("err", "Error al guardar");
+  }
+}
+
+// ── UI HELPERS ──────────────────────────────────────────
+function setSync(status, msg) {
+  const dot = document.getElementById("dot");
+  dot.className = "dot " + (status === "ok" ? "ok" : status === "busy" ? "busy" : "err");
+  document.getElementById("syncMsg").textContent = msg;
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2400);
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ── RENDER ───────────────────────────────────────────────
+function render() {
+  renderList("tareas");
+  renderList("estudio");
+  renderCompras();
+  document.getElementById("notas").value = state.notas || "";
+  updateProg();
+}
+
+function renderList(sec) {
+  const items = state[sec] || [];
+  document.getElementById("l" + cap(sec)).innerHTML = items.map((it, i) => `
+    <div class="item-row">
+      <div class="cb ${it.done ? "done" : ""}" onclick="toggle('${sec}',${i})">
+        ${it.done ? "✓" : ""}
+      </div>
+      <span class="item-text ${it.done ? "done" : ""}">${esc(it.text)}</span>
+      <button class="del-btn" onclick="delItem('${sec}',${i})">×</button>
+    </div>`).join("");
+  const done = items.filter(i => i.done).length;
+  document.getElementById("b" + cap(sec)).textContent = `${done}/${items.length}`;
+}
+
+function renderCompras() {
+  const c = state.compras || [];
+  document.getElementById("chipsCompras").innerHTML = c.map((item, i) => `
+    <div class="chip">${esc(item)}<button class="chip-del" onclick="delCompra(${i})">×</button></div>`).join("");
+  document.getElementById("bCompras").textContent = `${c.length} pendiente${c.length !== 1 ? "s" : ""}`;
+}
+
+function updateProg() {
+  const all = [...(state.tareas || []), ...(state.estudio || [])];
+  const done = all.filter(i => i.done).length;
+  const pct = all.length === 0 ? 0 : Math.round(done / all.length * 100);
+  document.getElementById("progBar").style.width = pct + "%";
+  document.getElementById("progText").textContent = `${done} de ${all.length} completadas · ${pct}%`;
+}
+
+// ── ACTIONS ──────────────────────────────────────────────
+function toggle(sec, idx) {
+  state[sec][idx].done = !state[sec][idx].done;
+  renderList(sec); updateProg(); schedSave();
+}
+
+function delItem(sec, idx) {
+  state[sec].splice(idx, 1);
+  renderList(sec); updateProg(); schedSave();
+}
+
+function addItem(sec) {
+  const el = document.getElementById("in" + cap(sec));
+  const val = el.value.trim(); if (!val) return;
+  state[sec].push({ text: val, done: false });
+  el.value = ""; renderList(sec); updateProg(); schedSave();
+}
+
+function addCompra() {
+  const el = document.getElementById("inCompras");
+  const val = el.value.trim(); if (!val) return;
+  state.compras.push(val); el.value = ""; renderCompras(); schedSave();
+}
+
+function delCompra(idx) {
+  state.compras.splice(idx, 1); renderCompras(); schedSave();
+}
+
+function onKey(e, sec) {
+  if (e.key !== "Enter") return;
+  sec === "compras" ? addCompra() : addItem(sec);
+}
+</script>
+</body>
+</html>
