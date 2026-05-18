@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Agenda 📓</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    background: #0a0a14;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* ── LANDSCAPE ── */
+  .landscape {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    transition: background 3s ease;
+  }
+
+  .sky {
+    position: absolute;
+    inset: 0;
+    transition: opacity 3s ease;
+  }
+
+  /* Sky themes */
+  .sky-dawn {
+    background: linear-gradient(180deg,
+      #1a1a3e 0%, #2d2060 20%, #6b3080 40%,
+      #c05878 55%, #f0905a 68%, #f5c87a 78%,
+      #4a8c3f 80%, #2d5a24 90%, #1e3d18 100%);
+  }
+  .sky-morning {
+    background: linear-gradient(180deg,
+      #1a3a6e 0%, #2d6aaa 20%, #5aaad4 40%,
+      #a0d8ef 58%, #d8f0f8 68%, #f5f8d0 76%,
+      #4a8c3f 80%, #2d5a24 90%, #1e3d18 100%);
+  }
+  .sky-noon {
+    background: linear-gradient(180deg,
+      #0a2050 0%, #1a50a0 15%, #3a90d0 35%,
+      #70c0e8 55%, #b8e4f4 68%, #e8f6fc 76%,
+      #4a9a38 80%, #2d5a24 90%, #1e3d18 100%);
+  }
+  .sky-afternoon {
+    background: linear-gradient(180deg,
+      #1a2d4e 0%, #2a4a80 18%, #4a80b8 38%,
+      #8ac4d8 56%, #d0ead0 68%, #f0d898 76%,
+      #4a8c3f 80%, #2d5a24 90%, #1e3d18 100%);
+  }
+  .sky-sunset {
+    background: linear-gradient(180deg,
+      #1a1030 0%, #3a1858 18%, #7a2878 38%,
+      #c04860 54%, #e87830 66%, #f8c050 76%,
+      #4a7830 80%, #2d5020 90%, #1e3018 100%);
+  }
+  .sky-dusk {
+    background: linear-gradient(180deg,
+      #0a0820 0%, #1a1040 18%, #2a1860 38%,
+      #502870 54%, #803040 66%, #b05830 76%,
+      #2a4820 80%, #1a3010 90%, #0e1e08 100%);
+  }
+  .sky-night {
+    background: linear-gradient(180deg,
+      #020408 0%, #040810 12%, #080c20 25%,
+      #0c1030 40%, #101430 55%, #141830 68%,
+      #1a2a10 80%, #101808 90%, #080e04 100%);
+  }
+  .sky-midnight {
+    background: linear-gradient(180deg,
+      #010204 0%, #020306 15%, #040810 30%,
+      #060a18 50%, #080c1e 65%, #0a1020 75%,
+      #101808 80%, #080e04 90%, #040804 100%);
+  }
+
+  /* Sun/Moon */
+  .celestial {
+    position: absolute;
+    border-radius: 50%;
+    transition: top 3s ease, left 3s ease, opacity 3s ease, width 2s, height 2s;
+  }
+  .sun-body {
+    background: radial-gradient(circle, #fff8c0 0%, #ffe070 30%, #ffb020 60%, #ff7010 100%);
+    box-shadow: 0 0 60px 30px rgba(255,180,30,0.5), 0 0 120px 60px rgba(255,140,10,0.2);
+    animation: sunPulse 4s ease-in-out infinite;
+  }
+  @keyframes sunPulse {
+    0%,100%{box-shadow:0 0 60px 30px rgba(255,180,30,.5),0 0 120px 60px rgba(255,140,10,.2)}
+    50%{box-shadow:0 0 80px 40px rgba(255,200,50,.6),0 0 160px 80px rgba(255,160,20,.3)}
+  }
+  .moon-body {
+    background: radial-gradient(circle at 35% 35%, #f0f0e0 0%, #c8c8b0 40%, #a0a088 100%);
+    box-shadow: 0 0 40px 20px rgba(200,200,160,0.3), 0 0 80px 40px rgba(180,180,140,0.1);
+    animation: moonGlow 6s ease-in-out infinite;
+  }
+  @keyframes moonGlow {
+    0%,100%{box-shadow:0 0 40px 20px rgba(200,200,160,.3),0 0 80px 40px rgba(180,180,140,.1)}
+    50%{box-shadow:0 0 55px 28px rgba(220,220,180,.4),0 0 100px 50px rgba(200,200,160,.15)}
+  }
+
+  /* Stars */
+  .stars-layer {
+    position: absolute;
+    inset: 0;
+    transition: opacity 3s ease;
+  }
+
+  /* Clouds */
+  .cloud {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(10px);
+    transition: opacity 3s ease, background 3s ease;
+  }
+  .cloud-1{width:200px;height:45px;top:16%;left:6%;animation:cloudDrift 40s ease-in-out infinite;}
+  .cloud-2{width:130px;height:30px;top:24%;right:10%;animation:cloudDrift 55s ease-in-out infinite reverse;}
+  .cloud-3{width:250px;height:55px;top:10%;left:38%;animation:cloudDrift 48s ease-in-out infinite;opacity:.7;}
+  @keyframes cloudDrift{0%,100%{transform:translateX(0)}50%{transform:translateX(25px)}}
+
+  /* Mountains */
+  .mountains-far,.mountains-near{position:absolute;left:0;right:0;}
+  .mountains-far{bottom:26%;height:130px;}
+  .mountains-near{bottom:20%;height:150px;}
+  .mountains-far svg,.mountains-near svg{width:100%;height:100%;}
+
+  /* Meadow */
+  .meadow{position:absolute;bottom:0;left:0;right:0;height:22%;border-radius:60% 60% 0 0/20px 20px 0 0;transition:background 3s ease;}
+  .grass-top{position:absolute;bottom:22%;left:0;right:0;height:32px;}
+
+  /* Overlay */
+  .overlay{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    transition:background 3s ease;
+  }
+
+  /* ── CONTENT ── */
+  .wrap{position:relative;z-index:1;max-width:580px;margin:0 auto;padding:24px 16px 60px;}
+
+  /* Header */
+  .header{text-align:center;margin-bottom:20px;}
+  .title{
+    font-family:'Fraunces',serif;font-size:32px;font-weight:600;
+    color:#fff;margin-bottom:2px;
+    text-shadow:0 2px 20px rgba(0,0,0,.5);
+    letter-spacing:-.5px;
+  }
+  .clock{
+    font-family:'Fraunces',serif;font-size:54px;font-weight:300;
+    color:#fff;letter-spacing:-2px;line-height:1;margin-bottom:8px;
+    text-shadow:0 2px 30px rgba(0,0,0,.5);
+  }
+  .clock-sec{font-size:30px;opacity:.55;}
+  .prog-bg{background:rgba(255,255,255,.15);border-radius:99px;height:5px;overflow:hidden;margin:0 auto 5px;max-width:240px;}
+  .prog-fill{height:5px;background:linear-gradient(90deg,#a8e063,#56ab2f);border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .prog-text{font-size:12px;color:rgba(255,255,255,.5);font-weight:300;}
+
+  /* ── DAY NAVIGATOR ── */
+  .day-nav{
+    display:flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,.07);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:14px;padding:10px 14px;
+    margin-bottom:14px;
+  }
+  .nav-btn{
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+    color:rgba(255,255,255,.8);border-radius:8px;
+    width:32px;height:32px;font-size:16px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;transition:all .15s;
+  }
+  .nav-btn:hover{background:rgba(255,255,255,.2);}
+  .day-info{flex:1;text-align:center;}
+  .day-label{
+    font-family:'Fraunces',serif;font-size:17px;color:#fff;font-weight:400;
+    text-shadow:0 1px 8px rgba(0,0,0,.4);
+  }
+  .day-sub{font-size:11px;color:rgba(255,255,255,.45);margin-top:1px;}
+  .today-btn{
+    background:rgba(168,224,99,.2);border:1px solid rgba(168,224,99,.35);
+    color:#a8e063;border-radius:8px;padding:5px 10px;
+    font-size:11px;font-weight:500;cursor:pointer;
+    font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap;
+  }
+  .today-btn:hover{background:rgba(168,224,99,.35);}
+  .today-btn.hidden{opacity:0;pointer-events:none;}
+
+  /* Auth */
+  #authSection{
+    text-align:center;padding:50px 20px;
+    background:rgba(255,255,255,.07);backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.14);border-radius:20px;
+  }
+  #authSection p{color:rgba(255,255,255,.75);font-size:14px;margin-bottom:24px;line-height:1.7;}
+  .btn-google{
+    display:inline-flex;align-items:center;gap:10px;
+    background:rgba(255,255,255,.92);border:none;border-radius:12px;
+    padding:13px 24px;font-size:14px;font-weight:500;color:#333;
+    cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.25);
+    transition:all .2s;font-family:'DM Sans',sans-serif;
+  }
+  .btn-google:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(0,0,0,.35);}
+  .btn-google svg{width:20px;height:20px;}
+
+  /* Sync bar */
+  .syncbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 2px;}
+  .sync-info{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.45);}
+  .dot{width:6px;height:6px;border-radius:50%;background:#ccc;flex-shrink:0;}
+  .dot.ok{background:#56ab2f;}
+  .dot.busy{background:#f0b429;animation:blink 1s infinite;}
+  .dot.err{background:#e74c3c;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .btn-signout{
+    font-size:11px;color:rgba(255,255,255,.35);
+    background:none;border:none;cursor:pointer;
+    padding:3px 8px;border-radius:6px;transition:all .15s;
+  }
+  .btn-signout:hover{color:rgba(255,255,255,.7);background:rgba(255,255,255,.1);}
+
+  /* Sections */
+  .section{
+    background:rgba(255,255,255,.08);
+    backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+    border:1px solid rgba(255,255,255,.13);
+    border-radius:18px;padding:18px 20px;margin-bottom:12px;
+    transition:box-shadow .2s;
+  }
+  .section:hover{box-shadow:0 4px 24px rgba(0,0,0,.2);}
+  .sec-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .sec-icon{font-size:16px;}
+  .sec-label{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);flex:1;}
+  .badge{font-size:11px;border-radius:99px;padding:2px 10px;font-weight:500;}
+  .badge-p{background:rgba(168,224,99,.2);color:#a8e063;border:1px solid rgba(168,224,99,.3);}
+  .badge-a{background:rgba(255,180,50,.2);color:#ffc04a;border:1px solid rgba(255,180,50,.3);}
+  .badge-n{background:rgba(180,160,255,.2);color:#c4b0ff;border:1px solid rgba(180,160,255,.3);}
+
+  /* Items */
+  .item-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+  .item-row:last-of-type{border-bottom:none;}
+  .cb{
+    width:18px;height:18px;border-radius:5px;
+    border:1.5px solid rgba(255,255,255,.3);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:all .15s;font-size:11px;color:#fff;
+  }
+  .cb.done{background:#56ab2f;border-color:#56ab2f;}
+  .item-text{flex:1;font-size:14px;color:rgba(255,255,255,.9);cursor:pointer;}
+  .item-text.done{color:rgba(255,255,255,.3);text-decoration:line-through;}
+  .item-text:hover:not(.done){color:#fff;}
+  .item-edit-input{
+    flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);
+    border-radius:6px;padding:4px 8px;font-size:14px;
+    color:#fff;font-family:'DM Sans',sans-serif;outline:none;
+  }
+  .item-edit-input:focus{border-color:#a8e063;}
+  .item-actions{display:flex;gap:4px;}
+  .edit-btn,.del-btn{
+    background:none;border:none;cursor:pointer;
+    color:rgba(255,255,255,.2);font-size:16px;line-height:1;
+    padding:2px 3px;border-radius:4px;transition:all .15s;
+  }
+  .edit-btn:hover{color:rgba(168,224,99,.8);background:rgba(168,224,99,.1);}
+  .del-btn:hover{color:rgba(231,76,60,.8);background:rgba(231,76,60,.1);}
+  .save-btn{
+    background:rgba(86,171,47,.25);border:1px solid rgba(86,171,47,.4);
+    border-radius:5px;color:#a8e063;font-size:12px;
+    padding:3px 8px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;
+  }
+
+  /* Add row */
+  .add-row{display:flex;gap:8px;margin-top:14px;}
+  .add-row input{
+    flex:1;border:1px solid rgba(255,255,255,.14);
+    border-radius:9px;padding:9px 12px;font-size:13px;
+    outline:none;background:rgba(255,255,255,.07);
+    color:#fff;font-family:'DM Sans',sans-serif;
+  }
+  .add-row input::placeholder{color:rgba(255,255,255,.28);}
+  .add-row input:focus{border-color:rgba(168,224,99,.5);background:rgba(255,255,255,.1);}
+  .add-btn{
+    display:flex;align-items:center;gap:4px;
+    background:rgba(86,171,47,.28);color:#a8e063;
+    border:1px solid rgba(86,171,47,.4);
+    border-radius:9px;padding:9px 14px;
+    font-size:13px;cursor:pointer;font-weight:500;
+    white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .15s;
+  }
+  .add-btn:hover{background:rgba(86,171,47,.42);}
+
+  /* Chips */
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+  .chip{
+    display:inline-flex;align-items:center;gap:5px;
+    background:rgba(255,180,50,.14);border:1px solid rgba(255,180,50,.28);
+    border-radius:99px;padding:5px 12px;font-size:13px;color:#ffc04a;
+  }
+  .chip-text{cursor:pointer;}
+  .chip-text:hover{text-decoration:underline;}
+  .chip-del{background:none;border:none;cursor:pointer;color:rgba(255,180,50,.45);font-size:16px;line-height:1;padding:0;transition:color .15s;}
+  .chip-del:hover{color:#ffc04a;}
+
+  /* Notas */
+  textarea{
+    width:100%;border:1px solid rgba(255,255,255,.14);
+    border-radius:9px;padding:10px 12px;font-size:13px;
+    outline:none;background:rgba(255,255,255,.07);
+    color:rgba(255,255,255,.9);resize:vertical;line-height:1.7;
+    font-family:'DM Sans',sans-serif;min-height:80px;
+  }
+  textarea::placeholder{color:rgba(255,255,255,.28);}
+  textarea:focus{border-color:rgba(168,224,99,.5);}
+  .notes-hint{font-size:10px;color:rgba(255,255,255,.25);margin-top:5px;text-align:right;}
+
+  /* Hábitos */
+  .habit-item{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+  .habit-item:last-of-type{border-bottom:none;}
+  .habit-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .habit-check{
+    width:22px;height:22px;border-radius:6px;
+    border:1.5px solid rgba(255,255,255,.3);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:all .2s;font-size:13px;color:#fff;
+  }
+  .habit-check.done-today{background:#a8e063;border-color:#a8e063;}
+  .habit-name{flex:1;font-size:14px;color:rgba(255,255,255,.9);cursor:pointer;}
+  .habit-name:hover{color:#fff;}
+  .streak-label{font-size:11px;color:rgba(255,255,255,.4);white-space:nowrap;}
+  .streak-label.on-fire{color:#ffa040;}
+  .habit-bar-bg{background:rgba(255,255,255,.1);border-radius:99px;height:4px;overflow:hidden;margin-bottom:3px;}
+  .habit-bar-fill{height:4px;border-radius:99px;background:linear-gradient(90deg,#a8e063,#56ab2f);transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .habit-bar-fill.danger{background:linear-gradient(90deg,#f6d365,#fda085);}
+  .habit-days-text{font-size:10px;color:rgba(255,255,255,.3);}
+
+  /* Past day banner */
+  .past-banner{
+    background:rgba(255,180,50,.12);border:1px solid rgba(255,180,50,.25);
+    border-radius:10px;padding:8px 14px;margin-bottom:10px;
+    font-size:12px;color:rgba(255,180,50,.9);text-align:center;
+  }
+
+  /* Footer */
+  .footer{text-align:center;font-size:11px;color:rgba(255,255,255,.2);margin-top:10px;font-weight:300;}
+
+  /* Toast */
+  .toast{
+    position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+    background:rgba(15,20,15,.92);backdrop-filter:blur(12px);
+    color:#fff;font-size:13px;padding:10px 20px;border-radius:99px;
+    border:1px solid rgba(255,255,255,.15);
+    opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:999;
+  }
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- ── LANDSCAPE ── -->
+<div class="landscape" id="landscape">
+  <div class="sky" id="sky"></div>
+
+  <svg class="stars-layer" id="starsLayer" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+    <g fill="white" id="starsGroup">
+      <circle cx="45" cy="28" r="1.2"/><circle cx="135" cy="75" r=".8"/><circle cx="225" cy="18" r="1.4"/>
+      <circle cx="305" cy="55" r=".7"/><circle cx="415" cy="12" r="1.1"/><circle cx="498" cy="45" r=".9"/>
+      <circle cx="595" cy="22" r="1.3"/><circle cx="695" cy="65" r=".8"/><circle cx="748" cy="32" r="1"/>
+      <circle cx="75" cy="115" r=".7"/><circle cx="175" cy="95" r=".9"/><circle cx="345" cy="105" r=".8"/>
+      <circle cx="448" cy="85" r="1.1"/><circle cx="648" cy="108" r=".7"/><circle cx="52" cy="155" r=".6"/>
+      <circle cx="262" cy="135" r=".8"/><circle cx="520" cy="145" r=".9"/><circle cx="720" cy="128" r=".7"/>
+      <circle cx="388" cy="48" r=".6"/><circle cx="570" cy="78" r=".8"/><circle cx="155" cy="42" r=".7"/>
+      <circle cx="810" cy="55" r=".9"/><circle cx="92" cy="88" r=".8"/><circle cx="480" cy="32" r=".6"/>
+    </g>
+  </svg>
+
+  <div class="cloud cloud-1" id="cloud1"></div>
+  <div class="cloud cloud-2" id="cloud2"></div>
+  <div class="cloud cloud-3" id="cloud3"></div>
+
+  <div class="celestial" id="celestial"></div>
+
+  <div class="mountains-far">
+    <svg viewBox="0 0 1440 130" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path id="mFar" d="M0,130 L0,85 L80,42 L160,72 L240,28 L320,68 L400,18 L480,58 L560,38 L640,62 L720,22 L800,60 L880,15 L960,55 L1040,35 L1120,65 L1200,25 L1280,58 L1360,38 L1440,68 L1440,130 Z"/>
+    </svg>
+  </div>
+  <div class="mountains-near">
+    <svg viewBox="0 0 1440 150" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path id="mNear" d="M0,150 L0,105 L100,52 L200,92 L300,32 L400,78 L500,48 L600,82 L700,28 L800,72 L900,38 L1000,78 L1100,52 L1200,88 L1300,42 L1440,92 L1440,150 Z"/>
+    </svg>
+  </div>
+
+  <div class="meadow" id="meadow"></div>
+  <div class="grass-top" id="grassTop" style="background:radial-gradient(ellipse 60% 100% at 20% 0%,#5aaa48 0%,transparent 60%),radial-gradient(ellipse 40% 100% at 50% 0%,#4a9a38 0%,transparent 60%),radial-gradient(ellipse 50% 100% at 80% 0%,#52a040 0%,transparent 60%);"></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="wrap">
+  <div class="header">
+    <h1 class="title">Mi Agenda 📓</h1>
+    <div class="clock" id="clock">00<span class="clock-sec">:00:00</span></div>
+    <div class="prog-bg"><div class="prog-fill" id="progBar" style="width:0%"></div></div>
+    <p class="prog-text" id="progText">0 de 0 completadas · 0%</p>
+  </div>
+
+  <!-- Auth -->
+  <div id="authSection">
+    <p>Conecta tu Google Drive para guardar y sincronizar tu agenda entre todos tus dispositivos.</p>
+    <button class="btn-google" onclick="signIn()">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Conectar con Google
+    </button>
+  </div>
+
+  <!-- App -->
+  <div id="appSection" style="display:none">
+    <div class="syncbar">
+      <div class="sync-info">
+        <span class="dot" id="dot"></span>
+        <span id="syncMsg">Sincronizando…</span>
+      </div>
+      <button class="btn-signout" onclick="signOut()">Cerrar sesión</button>
+    </div>
+
+    <!-- Day Navigator -->
+    <div class="day-nav">
+      <button class="nav-btn" onclick="changeDay(-1)">‹</button>
+      <div class="day-info">
+        <div class="day-label" id="dayLabel">—</div>
+        <div class="day-sub" id="daySub"></div>
+      </div>
+      <button class="today-btn" id="todayBtn" onclick="goToday()">Hoy</button>
+      <button class="nav-btn" onclick="changeDay(1)">›</button>
+    </div>
+
+    <div id="pastBanner" class="past-banner" style="display:none">
+      📅 Estás viendo un día pasado. Las tareas completadas se conservan como registro.
+    </div>
+
+    <!-- Tareas -->
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-icon">✅</span>
+        <span class="sec-label">Tareas del día</span>
+        <span class="badge badge-p" id="bTareas">0/0</span>
+      </div>
+      <div id="lTareas"></div>
+      <div class="add-row">
+        <input id="inTareas" placeholder="Añadir tarea…" onkeydown="onKey(event,'tareas')">
+        <button class="add-btn" onclick="addItem('tareas')">+ Añadir</button>
+      </div>
+    </div>
+
+    <!-- Estudio -->
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-icon">📚</span>
+        <span class="sec-label">Estudio</span>
+        <span class="badge badge-p" id="bEstudio">0/0</span>
+      </div>
+      <div id="lEstudio"></div>
+      <div class="add-row">
+        <input id="inEstudio" placeholder="Añadir sesión de estudio…" onkeydown="onKey(event,'estudio')">
+        <button class="add-btn" onclick="addItem('estudio')">+ Añadir</button>
+      </div>
+    </div>
+
+    <!-- Compras -->
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-icon">🛒</span>
+        <span class="sec-label">Lista de compras</span>
+        <span class="badge badge-a" id="bCompras">0 pendientes</span>
+      </div>
+      <div class="chips" id="chipsCompras"></div>
+      <div class="add-row">
+        <input id="inCompras" placeholder="Añadir producto…" onkeydown="onKey(event,'compras')">
+        <button class="add-btn" onclick="addCompra()">+ Añadir</button>
+      </div>
+    </div>
+
+    <!-- Hábitos (solo hoy) -->
+    <div class="section" id="habitosSection">
+      <div class="sec-head">
+        <span class="sec-icon">🌱</span>
+        <span class="sec-label">Hábitos · racha 30 días</span>
+        <span class="badge badge-p" id="bHabitos">0/0 hoy</span>
+      </div>
+      <div id="lHabitos"></div>
+      <div class="add-row">
+        <input id="inHabito" placeholder="Nuevo hábito (ej. Meditar, Ejercicio…)" onkeydown="onKeyHabito(event)">
+        <button class="add-btn" onclick="addHabito()">+ Añadir</button>
+      </div>
+    </div>
+
+    <!-- Notas / Apuntes -->
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-icon">📝</span>
+        <span class="sec-label">Apuntes y recordatorios</span>
+        <span class="badge badge-n" id="bNotas">—</span>
+      </div>
+      <textarea id="notas" rows="4" placeholder="Escribe aquí tus apuntes, recordatorios, ideas… Se guardan para siempre." oninput="schedSave()"></textarea>
+      <p class="notes-hint">📌 Estas notas son permanentes y no desaparecen</p>
+    </div>
+
+    <p class="footer">Agenda guardada en Google Drive · las tareas completadas se conservan por día</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+const CLIENT_ID = "715474482755-gad4dmkcrcspu6j5a614v9fat8ei83el.apps.googleusercontent.com";
+const SCOPES = "https://www.googleapis.com/auth/drive.appdata";
+const FILE_NAME = "mi-agenda-v2.json";
+
+const DIAS = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+
+function getToday() { return new Date().toISOString().slice(0,10); }
+
+// ── STATE ───────────────────────────────────────────────
+// state structure:
+// {
+//   notes: "texto permanente",          ← apuntes globales, nunca se borran
+//   habitos: [...],                     ← hábitos globales con racha
+//   compras: [...],                     ← lista compras global
+//   days: {                             ← un objeto por fecha
+//     "2026-05-18": { tareas:[], estudio:[] },
+//     ...
+//   }
+// }
+let state = { notes: "", habitos: [], compras: [], days: {} };
+let accessToken = null;
+let fileId = null;
+let saveTimer = null;
+let tokenClient = null;
+
+// Día que se está visualizando
+let viewDate = getToday();
+
+// ── BACKGROUND DINÁMICO ──────────────────────────────────
+const SKY_THEMES = {
+  // hora: { skyClass, sunOpacity, moonOpacity, sunPos, moonPos, cloudOpacity, cloudColor, mountainFar, mountainNear, meadow, overlay, stars }
+  dawn:      { sky:'sky-dawn',      sun:.9, moon:.1, sunPos:{top:'72%',left:'50%',size:80}, moonPos:{top:'12%',left:'80%',size:40}, cloud:.4, cloudColor:'rgba(255,200,160,.18)', mFar:'#3a2050', mNear:'#221540', meadow:'linear-gradient(180deg,#3a6030 0%,#2a4820 50%,#1a3010 100%)', overlay:'rgba(10,5,20,.5)', stars:.15 },
+  morning:   { sky:'sky-morning',   sun:.95, moon:0, sunPos:{top:'55%',left:'65%',size:75}, moonPos:{top:'8%',left:'15%',size:30}, cloud:.6, cloudColor:'rgba(255,255,255,.15)', mFar:'#2a4060', mNear:'#1a2840', meadow:'linear-gradient(180deg,#4a8c3f 0%,#326828 50%,#1e4018 100%)', overlay:'rgba(5,15,30,.35)', stars:0 },
+  noon:      { sky:'sky-noon',      sun:1, moon:0, sunPos:{top:'30%',left:'50%',size:85}, moonPos:{top:'5%',left:'20%',size:28}, cloud:.7, cloudColor:'rgba(255,255,255,.18)', mFar:'#1e3550', mNear:'#152538', meadow:'linear-gradient(180deg,#52a040 0%,#3a7828 50%,#244818 100%)', overlay:'rgba(5,10,25,.3)', stars:0 },
+  afternoon: { sky:'sky-afternoon', sun:.9, moon:0, sunPos:{top:'45%',left:'30%',size:80}, moonPos:{top:'8%',left:'75%',size:32}, cloud:.65, cloudColor:'rgba(255,240,200,.15)', mFar:'#253850', mNear:'#182840', meadow:'linear-gradient(180deg,#4a8838 0%,#326020 50%,#1e3c10 100%)', overlay:'rgba(8,12,28,.38)', stars:0 },
+  sunset:    { sky:'sky-sunset',    sun:.85, moon:.2, sunPos:{top:'76%',left:'50%',size:95}, moonPos:{top:'18%',left:'72%',size:42}, cloud:.3, cloudColor:'rgba(255,160,80,.2)', mFar:'#2a1845', mNear:'#180f30', meadow:'linear-gradient(180deg,#406030 0%,#2c4818 50%,#1a2c0e 100%)', overlay:'rgba(15,5,25,.48)', stars:.1 },
+  dusk:      { sky:'sky-dusk',      sun:.3, moon:.55, sunPos:{top:'86%',left:'50%',size:70}, moonPos:{top:'22%',left:'65%',size:50}, cloud:.15, cloudColor:'rgba(150,100,180,.18)', mFar:'#1a1030', mNear:'#100820', meadow:'linear-gradient(180deg,#2a4020 0%,#1a2c10 50%,#0e1c08 100%)', overlay:'rgba(10,5,20,.55)', stars:.5 },
+  night:     { sky:'sky-night',     sun:0, moon:.85, sunPos:{top:'95%',left:'50%',size:60}, moonPos:{top:'25%',left:'72%',size:55}, cloud:.08, cloudColor:'rgba(80,80,140,.15)', mFar:'#0e0a1a', mNear:'#090615', meadow:'linear-gradient(180deg,#182010 0%,#101408 50%,#080c04 100%)', overlay:'rgba(5,3,12,.6)', stars:1 },
+  midnight:  { sky:'sky-midnight',  sun:0, moon:.7, sunPos:{top:'98%',left:'50%',size:55}, moonPos:{top:'18%',left:'50%',size:58}, cloud:.04, cloudColor:'rgba(50,50,100,.12)', mFar:'#060410', mNear:'#04030a', meadow:'linear-gradient(180deg,#101008 0%,#080c04 50%,#050804 100%)', overlay:'rgba(3,2,8,.65)', stars:1 },
+};
+
+function getTimeTheme() {
+  const now = new Date();
+  const opts = { timeZone: 'Europe/Madrid', hour: 'numeric', minute: 'numeric', hour12: false };
+  const parts = new Intl.DateTimeFormat('es-ES', opts).formatToParts(now);
+  const h = parseInt(parts.find(p=>p.type==='hour').value);
+  const m = parseInt(parts.find(p=>p.type==='minute').value);
+  const t = h + m/60;
+  if (t >= 5.5 && t < 7.5) return 'dawn';
+  if (t >= 7.5 && t < 12) return 'morning';
+  if (t >= 12 && t < 15) return 'noon';
+  if (t >= 15 && t < 18.5) return 'afternoon';
+  if (t >= 18.5 && t < 20.5) return 'sunset';
+  if (t >= 20.5 && t < 22) return 'dusk';
+  if (t >= 22 && t < 24) return 'night';
+  return 'midnight'; // 0–5.5
+}
+
+let lastTheme = null;
+function applyBackground() {
+  const theme = getTimeTheme();
+  if (theme === lastTheme) return;
+  lastTheme = theme;
+  const T = SKY_THEMES[theme];
+
+  // Sky
+  const sky = document.getElementById('sky');
+  sky.className = 'sky ' + T.sky;
+
+  // Stars
+  document.getElementById('starsLayer').style.opacity = T.stars;
+
+  // Clouds
+  ['cloud1','cloud2','cloud3'].forEach(id => {
+    document.getElementById(id).style.background = T.cloudColor;
+    document.getElementById(id).style.opacity = T.cloud;
+  });
+
+  // Sun
+  const cel = document.getElementById('celestial');
+  const isNight = T.sun < T.moon;
+  cel.style.width = (isNight ? T.moonPos.size : T.sunPos.size) + 'px';
+  cel.style.height = (isNight ? T.moonPos.size : T.sunPos.size) + 'px';
+  cel.style.top = isNight ? T.moonPos.top : T.sunPos.top;
+  cel.style.left = isNight ? T.moonPos.left : T.sunPos.left;
+  cel.style.transform = 'translate(-50%, -50%)';
+  cel.style.opacity = isNight ? T.moon : T.sun;
+  cel.className = 'celestial ' + (isNight ? 'moon-body' : 'sun-body');
+
+  // Mountains
+  document.getElementById('mFar').setAttribute('fill', T.mFar);
+  document.getElementById('mNear').setAttribute('fill', T.mNear);
+
+  // Meadow
+  document.getElementById('meadow').style.background = T.meadow;
+
+  // Overlay
+  document.getElementById('overlay').style.background = T.overlay;
+}
+
+applyBackground();
+setInterval(applyBackground, 60000); // check every minute
+
+// ── CLOCK (hora española) ────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat('es-ES', {
+    timeZone:'Europe/Madrid', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+  }).formatToParts(now);
+  const p = {};
+  parts.forEach(x => { if (x.type !== 'literal') p[x.type] = x.value; });
+  document.getElementById('clock').innerHTML =
+    `${p.hour}:${p.minute}<span class="clock-sec">:${p.second}</span>`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ── AUTH ────────────────────────────────────────────────
+window.onload = () => {
+  const saved = sessionStorage.getItem('gtoken');
+  if (saved) { accessToken = saved; showApp(); loadFromDrive(); }
+  google.accounts.id.initialize({ client_id: CLIENT_ID });
+};
+
+function signIn() {
+  if (!window.google) { showToast('Cargando Google…'); return; }
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID, scope: SCOPES,
+    callback: (resp) => {
+      if (resp.error) { setSync('err','Error al conectar'); return; }
+      accessToken = resp.access_token;
+      sessionStorage.setItem('gtoken', accessToken);
+      showApp(); loadFromDrive();
+    }
+  });
+  tokenClient.requestAccessToken({ prompt:'consent' });
+}
+
+function signOut() {
+  google.accounts.oauth2.revoke(accessToken, () => {});
+  accessToken = null; fileId = null;
+  sessionStorage.removeItem('gtoken');
+  document.getElementById('authSection').style.display = '';
+  document.getElementById('appSection').style.display = 'none';
+}
+
+function showApp() {
+  document.getElementById('authSection').style.display = 'none';
+  document.getElementById('appSection').style.display = '';
+  updateDayNav();
+}
+
+// ── DAY NAVIGATION ───────────────────────────────────────
+function updateDayNav() {
+  const today = getToday();
+  const vd = new Date(viewDate + 'T12:00:00');
+  const label = `${DIAS[vd.getDay()]}, ${vd.getDate()} de ${MESES[vd.getMonth()]}`;
+  document.getElementById('dayLabel').textContent = label;
+
+  const isToday = viewDate === today;
+  const isPast = viewDate < today;
+  const isFuture = viewDate > today;
+
+  document.getElementById('daySub').textContent = isToday ? '📌 Hoy' : isPast ? '📂 Día pasado' : '🗓 Próximamente';
+  document.getElementById('todayBtn').classList.toggle('hidden', isToday);
+  document.getElementById('pastBanner').style.display = isPast ? '' : 'none';
+  document.getElementById('habitosSection').style.display = isToday ? '' : 'none';
+}
+
+function changeDay(delta) {
+  const d = new Date(viewDate + 'T12:00:00');
+  d.setDate(d.getDate() + delta);
+  viewDate = d.toISOString().slice(0,10);
+  updateDayNav();
+  renderDay();
+}
+
+function goToday() {
+  // save notas before switching
+  state.notes = document.getElementById('notas').value;
+  viewDate = getToday();
+  updateDayNav();
+  renderDay();
+}
+
+// ── DRIVE API ────────────────────────────────────────────
+async function driveReq(url, opts = {}) {
+  const res = await fetch(url, {
+    ...opts, headers: { Authorization:`Bearer ${accessToken}`, ...(opts.headers||{}) }
+  });
+  if (res.status === 401) { signOut(); return null; }
+  return res;
+}
+async function findFile() {
+  const res = await driveReq(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${FILE_NAME}'&fields=files(id)`);
+  if (!res) return null;
+  const data = await res.json();
+  return data.files && data.files.length > 0 ? data.files[0].id : null;
+}
+async function readFile(id) {
+  const res = await driveReq(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`);
+  if (!res) return null;
+  return await res.json();
+}
+async function createFile(content) {
+  const meta = JSON.stringify({ name: FILE_NAME, parents: ['appDataFolder'] });
+  const form = new FormData();
+  form.append('metadata', new Blob([meta], { type:'application/json' }));
+  form.append('media', new Blob([JSON.stringify(content)], { type:'application/json' }));
+  const res = await driveReq(
+    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
+    { method:'POST', body:form }
+  );
+  if (!res) return null;
+  return (await res.json()).id;
+}
+async function updateFile(id, content) {
+  await driveReq(
+    `https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,
+    { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(content) }
+  );
+}
+
+// ── LOAD & SAVE ──────────────────────────────────────────
+async function loadFromDrive() {
+  setSync('busy','Cargando desde Drive…');
+  try {
+    const id = await findFile();
+    if (id) {
+      fileId = id;
+      const saved = await readFile(id);
+      if (saved) {
+        // Migrate old format (flat day structure) if needed
+        if (saved.tareas !== undefined && saved.days === undefined) {
+          // Old format: migrate
+          const oldDate = saved.date || getToday();
+          state = {
+            notes: saved.notas || '',
+            habitos: (saved.habitos || []).map(migrateHabito),
+            compras: saved.compras || [],
+            days: {}
+          };
+          state.days[oldDate] = {
+            tareas: saved.tareas || [],
+            estudio: saved.estudio || []
+          };
+        } else {
+          state = {
+            notes: saved.notes || '',
+            habitos: (saved.habitos || []).map(migrateHabito),
+            compras: saved.compras || [],
+            days: saved.days || {}
+          };
+        }
+        // Check habit resets
+        state.habitos = state.habitos.map(h => checkHabitoReset(h));
+      }
+      setSync('ok','Sincronizado');
+    } else {
+      setSync('ok','Listo · Drive guardará al añadir algo');
+    }
+  } catch(e) {
+    setSync('err','Error al cargar');
+  }
+  viewDate = getToday();
+  updateDayNav();
+  renderAll();
+}
+
+function ensureDay(date) {
+  if (!state.days[date]) state.days[date] = { tareas: [], estudio: [] };
+}
+
+function schedSave() {
+  state.notes = document.getElementById('notas').value;
+  clearTimeout(saveTimer);
+  setSync('busy','Guardando…');
+  saveTimer = setTimeout(saveToDrive, 1200);
+}
+
+async function saveToDrive() {
+  try {
+    if (fileId) await updateFile(fileId, state);
+    else fileId = await createFile(state);
+    setSync('ok','Guardado en Drive');
+  } catch(e) {
+    setSync('err','Error al guardar');
+  }
+}
+
+// ── UI HELPERS ───────────────────────────────────────────
+function setSync(status, msg) {
+  document.getElementById('dot').className = 'dot ' + (status==='ok'?'ok':status==='busy'?'busy':'err');
+  document.getElementById('syncMsg').textContent = msg;
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ── RENDER ────────────────────────────────────────────────
+function renderAll() {
+  renderDay();
+  renderCompras();
+  renderHabitos();
+  document.getElementById('notas').value = state.notes || '';
+  // notas badge: line count
+  updateNotasBadge();
+}
+
+function renderDay() {
+  ensureDay(viewDate);
+  renderList('tareas');
+  renderList('estudio');
+  updateProg();
+}
+
+function updateNotasBadge() {
+  const lines = (state.notes || '').split('\n').filter(l => l.trim()).length;
+  document.getElementById('bNotas').textContent = lines > 0 ? `${lines} apunte${lines!==1?'s':''}` : 'vacío';
+}
+
+function renderList(sec) {
+  ensureDay(viewDate);
+  const items = state.days[viewDate][sec] || [];
+  const container = document.getElementById('l' + cap(sec));
+  container.innerHTML = items.map((it, i) => `
+    <div class="item-row" id="row-${sec}-${i}">
+      <div class="cb ${it.done?'done':''}" onclick="toggle('${sec}',${i})">${it.done?'✓':''}</div>
+      <span class="item-text ${it.done?'done':''}" ondblclick="startEdit('${sec}',${i})"
+        title="Doble clic para editar">${esc(it.text)}</span>
+      <div class="item-actions">
+        <button class="edit-btn" onclick="startEdit('${sec}',${i})" title="Editar">✏</button>
+        <button class="del-btn" onclick="delItem('${sec}',${i})">×</button>
+      </div>
+    </div>`).join('');
+  const done = items.filter(i=>i.done).length;
+  document.getElementById('b' + cap(sec)).textContent = `${done}/${items.length}`;
+}
+
+function startEdit(sec, idx) {
+  ensureDay(viewDate);
+  const row = document.getElementById(`row-${sec}-${idx}`);
+  if (!row) return;
+  const it = state.days[viewDate][sec][idx];
+  row.innerHTML = `
+    <div class="cb ${it.done?'done':''}" onclick="toggle('${sec}',${idx})">${it.done?'✓':''}</div>
+    <input class="item-edit-input" id="edit-${sec}-${idx}" value="${esc(it.text)}"
+      onkeydown="onEditKey(event,'${sec}',${idx})">
+    <button class="save-btn" onclick="saveEdit('${sec}',${idx})">Guardar</button>
+    <button class="del-btn" onclick="delItem('${sec}',${idx})">×</button>
+  `;
+  const inp = document.getElementById(`edit-${sec}-${idx}`);
+  inp.focus(); inp.select();
+}
+function onEditKey(e, sec, idx) {
+  if (e.key==='Enter') saveEdit(sec,idx);
+  if (e.key==='Escape') renderList(sec);
+}
+function saveEdit(sec, idx) {
+  ensureDay(viewDate);
+  const inp = document.getElementById(`edit-${sec}-${idx}`);
+  if (!inp) return;
+  const val = inp.value.trim(); if (!val) return;
+  state.days[viewDate][sec][idx].text = val;
+  renderList(sec); updateProg(); schedSave(); showToast('Editado ✓');
+}
+
+function renderCompras() {
+  const c = state.compras || [];
+  document.getElementById('chipsCompras').innerHTML = c.map((item,i) => `
+    <div class="chip">
+      <span class="chip-text" ondblclick="editCompra(${i})" title="Doble clic para editar">${esc(item)}</span>
+      <button class="chip-del" onclick="delCompra(${i})">×</button>
+    </div>`).join('');
+  document.getElementById('bCompras').textContent = `${c.length} pendiente${c.length!==1?'s':''}`;
+}
+function editCompra(idx) {
+  const val = prompt('Editar producto:', state.compras[idx]);
+  if (val===null) return;
+  const t = val.trim(); if (!t) return;
+  state.compras[idx] = t; renderCompras(); schedSave();
+}
+
+// ── HÁBITOS ──────────────────────────────────────────────
+function migrateHabito(h) {
+  return { id:h.id||Date.now()+Math.random(), name:h.name||'', streak:h.streak||0, lastChecked:h.lastChecked||null, checkedToday:h.checkedToday||false };
+}
+function checkHabitoReset(h) {
+  if (!h.lastChecked) return { ...h, checkedToday:false };
+  const today = getToday();
+  const yesterday = new Date(today+'T12:00:00');
+  yesterday.setDate(yesterday.getDate()-1);
+  const yStr = yesterday.toISOString().slice(0,10);
+  if (h.lastChecked !== today && h.lastChecked !== yStr) return { ...h, streak:0, checkedToday:false };
+  if (h.lastChecked === yStr) return { ...h, checkedToday:false };
+  return h;
+}
+function renderHabitos() {
+  const habitos = state.habitos || [];
+  const container = document.getElementById('lHabitos');
+  container.innerHTML = habitos.map((h,i) => {
+    const pct = Math.min(100, Math.round((h.streak/30)*100));
+    const barClass = h.streak < 7 ? 'danger' : '';
+    const emoji = h.streak>=30?'🏆':h.streak>=14?'🔥':h.streak>=7?'⚡':'';
+    const streakLabel = h.checkedToday
+      ? `${emoji} ${h.streak} día${h.streak!==1?'s':''}`
+      : `${h.streak>0?h.streak+'d · ':''} ¡hazlo hoy!`;
+    return `
+    <div class="habit-item" id="habit-row-${i}">
+      <div class="habit-header">
+        <div class="habit-check ${h.checkedToday?'done-today':''}" onclick="toggleHabito(${i})">${h.checkedToday?'✓':''}</div>
+        <span class="habit-name" ondblclick="startEditHabito(${i})">${esc(h.name)}</span>
+        <span class="streak-label ${h.streak>=7?'on-fire':''}">${streakLabel}</span>
+        <button class="edit-btn" onclick="startEditHabito(${i})">✏</button>
+        <button class="del-btn" onclick="delHabito(${i})">×</button>
+      </div>
+      <div class="habit-bar-bg"><div class="habit-bar-fill ${barClass}" style="width:${pct}%"></div></div>
+      <div class="habit-days-text">${h.streak}/30 días${h.streak>=30?' · ¡Meta conseguida! 🏆':''}</div>
+    </div>`;
+  }).join('');
+  const done = habitos.filter(h=>h.checkedToday).length;
+  document.getElementById('bHabitos').textContent = `${done}/${habitos.length} hoy`;
+}
+function toggleHabito(idx) {
+  const h = state.habitos[idx];
+  if (h.checkedToday) {
+    h.checkedToday = false; h.streak = Math.max(0,h.streak-1);
+    h.lastChecked = h.streak>0?getToday():null;
+  } else {
+    h.checkedToday = true; h.streak++; h.lastChecked = getToday();
+    if (h.streak===30) showToast('🏆 ¡30 días seguidos! ¡Meta conseguida!');
+    else if (h.streak===14) showToast('🔥 ¡14 días! ¡Increíble constancia!');
+    else if (h.streak===7) showToast('⚡ ¡7 días seguidos! ¡Sigue así!');
+  }
+  renderHabitos(); schedSave();
+}
+function startEditHabito(idx) {
+  const row = document.getElementById(`habit-row-${idx}`);
+  if (!row) return;
+  const h = state.habitos[idx];
+  const header = row.querySelector('.habit-header');
+  header.innerHTML = `
+    <div class="habit-check ${h.checkedToday?'done-today':''}" onclick="toggleHabito(${idx})">${h.checkedToday?'✓':''}</div>
+    <input class="item-edit-input" id="edit-habit-${idx}" value="${esc(h.name)}"
+      onkeydown="onEditHabitoKey(event,${idx})" style="flex:1">
+    <button class="save-btn" onclick="saveEditHabito(${idx})">Guardar</button>
+    <button class="del-btn" onclick="delHabito(${idx})">×</button>
+  `;
+  const inp = document.getElementById(`edit-habit-${idx}`);
+  inp.focus(); inp.select();
+}
+function onEditHabitoKey(e,idx) { if(e.key==='Enter')saveEditHabito(idx); if(e.key==='Escape')renderHabitos(); }
+function saveEditHabito(idx) {
+  const inp = document.getElementById(`edit-habit-${idx}`);
+  if (!inp) return;
+  const val = inp.value.trim(); if (!val) return;
+  state.habitos[idx].name = val; renderHabitos(); schedSave(); showToast('Hábito editado ✓');
+}
+function addHabito() {
+  const el = document.getElementById('inHabito');
+  const val = el.value.trim(); if (!val) return;
+  state.habitos.push({ id:Date.now(), name:val, streak:0, lastChecked:null, checkedToday:false });
+  el.value = ''; renderHabitos(); schedSave();
+}
+function delHabito(idx) { state.habitos.splice(idx,1); renderHabitos(); schedSave(); }
+function onKeyHabito(e) { if(e.key==='Enter') addHabito(); }
+
+// ── ACCIONES ─────────────────────────────────────────────
+function updateProg() {
+  ensureDay(viewDate);
+  const all = [...(state.days[viewDate].tareas||[]), ...(state.days[viewDate].estudio||[])];
+  const done = all.filter(i=>i.done).length;
+  const pct = all.length===0?0:Math.round(done/all.length*100);
+  document.getElementById('progBar').style.width = pct+'%';
+  document.getElementById('progText').textContent = `${done} de ${all.length} completadas · ${pct}%`;
+}
+function toggle(sec, idx) {
+  ensureDay(viewDate);
+  state.days[viewDate][sec][idx].done = !state.days[viewDate][sec][idx].done;
+  renderList(sec); updateProg(); schedSave();
+}
+function delItem(sec, idx) {
+  ensureDay(viewDate);
+  state.days[viewDate][sec].splice(idx,1);
+  renderList(sec); updateProg(); schedSave();
+}
+function addItem(sec) {
+  ensureDay(viewDate);
+  const el = document.getElementById('in'+cap(sec));
+  const val = el.value.trim(); if (!val) return;
+  state.days[viewDate][sec].push({ text:val, done:false });
+  el.value = ''; renderList(sec); updateProg(); schedSave();
+}
+function addCompra() {
+  const el = document.getElementById('inCompras');
+  const val = el.value.trim(); if (!val) return;
+  state.compras.push(val); el.value = ''; renderCompras(); schedSave();
+}
+function delCompra(idx) { state.compras.splice(idx,1); renderCompras(); schedSave(); }
+function onKey(e, sec) {
+  if (e.key!=='Enter') return;
+  sec==='compras' ? addCompra() : addItem(sec);
+}
+</script>
+</body>
+</html>
